@@ -222,6 +222,71 @@ def mettre_en_forme_excel(chemin_fichier):
     wb.save(chemin_fichier)
 
 
+def diagnostiquer_erreur(row, df_orbis, df_hexa):
+    """
+    Diagnostique l'origine de l'erreur en renvoyant 'NDA', 'Semaine' ou 'Jour'.
+    """
+    nda = str(row['NDA']).strip()
+    date_val = row['Date']
+    origine = row["Origine de l'écart"]
+    nom = str(row['Nom Final'] if 'Nom Final' in row else row.get('Nom', '')).strip().upper()
+    prenom = str(row['Prénom Final'] if 'Prénom Final' in row else row.get('Prénom', '')).strip().upper()
+
+    # 1. Erreur de NDA (Faute de frappe)
+    if origine == 'Manquant dans Hexagone':
+        match_hexa = df_hexa[
+            (df_hexa['Nom'].str.strip().str.upper() == nom) &
+            (df_hexa['Prénom'].str.strip().str.upper() == prenom) &
+            (df_hexa['NDA'] != nda)
+        ]
+        if not match_hexa.empty:
+            return "NDA"
+    elif origine == 'Manquant dans Orbis':
+        match_orbis = df_orbis[
+            (df_orbis['Nom'].str.strip().str.upper() == nom) &
+            (df_orbis['Prénom'].str.strip().str.upper() == prenom) &
+            (df_orbis['NDA'] != nda)
+        ]
+        if not match_orbis.empty:
+            return "NDA"
+
+    # 2. Erreur de Semaine ou Jour
+    nda_dans_orbis = nda in df_orbis['NDA'].values
+    nda_dans_hexa = nda in df_hexa['NDA'].values
+
+    try:
+        dt_venue = datetime.strptime(date_val, '%d/%m/%Y')
+    except Exception:
+        dt_venue = None
+
+    if nda_dans_orbis and nda_dans_hexa and dt_venue:
+        if origine == 'Manquant dans Hexagone':
+            dates_hexa = df_hexa[df_hexa['NDA'] == nda]['Date'].dropna().unique()
+            for d_str in dates_hexa:
+                try:
+                    dt_h = datetime.strptime(d_str, '%d/%m/%Y')
+                    diff_days = abs((dt_h - dt_venue).days)
+                    if diff_days > 0 and diff_days % 7 == 0:
+                        return "Semaine"
+                    elif 0 < diff_days < 7:
+                        return "Jour"
+                except Exception:
+                    continue
+        elif origine == 'Manquant dans Orbis':
+            dates_orbis = df_orbis[df_orbis['NDA'] == nda]['Date'].dropna().unique()
+            for d_str in dates_orbis:
+                try:
+                    dt_o = datetime.strptime(d_str, '%d/%m/%Y')
+                    diff_days = abs((dt_venue - dt_o).days)
+                    if diff_days > 0 and diff_days % 7 == 0:
+                        return "Semaine"
+                    elif 0 < diff_days < 7:
+                        return "Jour"
+                except Exception:
+                    continue
+                    
+    return ""
+
 # ==========================================
 # FONCTION PRINCIPALE
 # ==========================================
@@ -379,6 +444,10 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     # --- Préparation du DataFrame d'export ---
     colonnes_export = ['NDA', 'Nom Final', 'Prénom Final', 'Date Naissance Final', 'Date', 'Origine de l\'écart']
     if not anomalies.empty:
+        # Calcul du diagnostic d'erreur
+        anomalies["Origine de l'erreur"] = anomalies.apply(lambda r: diagnostiquer_erreur(r, df_orbis, df_hexa), axis=1)
+        colonnes_export.append("Origine de l'erreur")
+        
         export_tri = anomalies[colonnes_export].rename(columns={
             'Nom Final': 'Nom',
             'Prénom Final': 'Prénom',
@@ -390,7 +459,7 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
         export_tri = export_tri.sort_values('_tri_date', ascending=False).drop(columns=['_tri_date'])
     else:
         export_tri = pd.DataFrame(columns=[
-            'NDA', 'Nom', 'Prénom', 'Date Naissance', 'Date', "Origine de l'écart"
+            'NDA', 'Nom', 'Prénom', 'Date Naissance', 'Date', "Origine de l'écart", "Origine de l'erreur"
         ])
 
     # Compteurs pour la synthèse
