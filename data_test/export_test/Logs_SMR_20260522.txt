@@ -1,0 +1,71 @@
+2026-05-22 13:15:19,545 - INFO - === DÉMARRAGE DU CONTRÔLE SMR ===
+2026-05-22 13:15:19,545 - INFO - --- Étape 1 : Chargement Orbis SMR ---
+2026-05-22 13:15:19,559 - INFO - Validation OK pour 'Orbis_SMR_Test.xlsx' (53 lignes, 6 colonnes)
+2026-05-22 13:15:19,559 - INFO - Orbis brut : 53 lignes
+2026-05-22 13:15:19,560 - INFO - Année détectée depuis les données Orbis (format long) : 2026
+2026-05-22 13:15:19,560 - INFO - Année par défaut pour les semaines courtes : 2026
+2026-05-22 13:15:19,564 - INFO - Orbis après éclatement : 124 lignes (venues individuelles)
+2026-05-22 13:15:19,564 - INFO - --- Étape 2 : Chargement Hexagone SMR ---
+2026-05-22 13:15:19,577 - INFO - Validation OK pour 'Hexagone_SMR_Test.xlsx' (175 lignes, 13 colonnes)
+2026-05-22 13:15:19,578 - INFO - Hexagone brut : 175 lignes
+2026-05-22 13:15:19,579 - INFO - Lignes SD supprimées : 16. Hexagone après nettoyage : 159 lignes
+2026-05-22 13:15:19,611 - INFO - Hexagone dates parsées : 159/159
+2026-05-22 13:15:19,611 - INFO - --- Étape 3 : Tri NDA + Date ---
+2026-05-22 13:15:19,613 - INFO - Orbis pour le merge : 124 lignes (dédoublonnées)
+2026-05-22 13:15:19,613 - INFO - Hexagone pour le merge : 122 lignes (dédoublonnées)
+2026-05-22 13:15:19,619 - INFO - Résultat du tri — Correspondances : 87, Anomalies : 72
+2026-05-22 13:15:19,624 - INFO - --- Étape 4 : Export des résultats ---
+2026-05-22 13:15:50,211 - INFO - === DÉMARRAGE DU CONTRÔLE SMR ===
+2026-05-22 13:15:50,211 - INFO - --- Étape 1 : Chargement Orbis SMR ---
+2026-05-22 13:15:50,218 - INFO - Validation OK pour 'Orbis_SMR_Test.xlsx' (53 lignes, 6 colonnes)
+2026-05-22 13:15:50,218 - INFO - Orbis brut : 53 lignes
+2026-05-22 13:15:50,219 - INFO - Année détectée depuis les données Orbis (format long) : 2026
+2026-05-22 13:15:50,219 - INFO - Année par défaut pour les semaines courtes : 2026
+2026-05-22 13:15:50,222 - INFO - Orbis après éclatement : 124 lignes (venues individuelles)
+2026-05-22 13:15:50,222 - INFO - --- Étape 2 : Chargement Hexagone SMR ---
+2026-05-22 13:15:50,235 - INFO - Validation OK pour 'Hexagone_SMR_Test.xlsx' (175 lignes, 13 colonnes)
+2026-05-22 13:15:50,235 - INFO - Hexagone brut : 175 lignes
+2026-05-22 13:15:50,236 - INFO - Lignes SD supprimées : 16. Hexagone après nettoyage : 159 lignes
+2026-05-22 13:15:50,268 - INFO - Hexagone dates parsées : 159/159
+2026-05-22 13:15:50,268 - INFO - --- Étape 3 : Tri NDA + Date ---
+2026-05-22 13:15:50,269 - INFO - Orbis pour le merge : 124 lignes (dédoublonnées)
+2026-05-22 13:15:50,270 - INFO - Hexagone pour le merge : 122 lignes (dédoublonnées)
+2026-05-22 13:15:50,275 - INFO - Résultat du tri — Correspondances : 87, Anomalies : 72
+2026-05-22 13:15:50,278 - INFO - --- Étape 4 : Export des résultats ---
+2026-05-22 13:16:24,012 - INFO - === DÉMARRAGE DU CONTRÔLE SMR ===
+2026-05-22 13:16:24,012 - INFO - --- Étape 1 : Chargement Orbis SMR ---
+2026-05-22 13:16:24,020 - INFO - Validation OK pour 'Orbis_SMR_Test.xlsx' (53 lignes, 6 colonnes)
+2026-05-22 13:16:24,020 - INFO - Orbis brut : 53 lignes
+2026-05-22 13:16:24,021 - INFO - Année détectée depuis les données Orbis (format long) : 2026
+2026-05-22 13:16:24,021 - INFO - Année par défaut pour les semaines courtes : 2026
+2026-05-22 13:16:24,024 - INFO - Orbis après éclatement : 124 lignes (venues individuelles)
+2026-05-22 13:16:24,024 - INFO - --- Étape 2 : Chargement Hexagone SMR ---
+2026-05-22 13:16:24,036 - INFO - Validation OK pour 'Hexagone_SMR_Test.xlsx' (175 lignes, 13 colonnes)
+2026-05-22 13:16:24,037 - INFO - Hexagone brut : 175 lignes
+2026-05-22 13:16:24,038 - INFO - Lignes SD supprimées : 16. Hexagone après nettoyage : 159 lignes
+2026-05-22 13:16:24,068 - INFO - Hexagone dates parsées : 159/159
+2026-05-22 13:16:24,068 - INFO - --- Étape 3 : Tri NDA + Date ---
+2026-05-22 13:16:24,070 - INFO - Orbis pour le merge : 124 lignes (dédoublonnées)
+2026-05-22 13:16:24,070 - INFO - Hexagone pour le merge : 122 lignes (dédoublonnées)
+2026-05-22 13:16:24,075 - INFO - Résultat du tri — Correspondances : 87, Anomalies : 72
+2026-05-22 13:16:24,078 - INFO - --- Étape 4 : Export des résultats ---
+2026-05-22 13:17:06,703 - INFO - === DÉMARRAGE DU CONTRÔLE SMR ===
+2026-05-22 13:17:06,703 - INFO - --- Étape 1 : Chargement Orbis SMR ---
+2026-05-22 13:17:06,710 - INFO - Validation OK pour 'Orbis_SMR_Test.xlsx' (53 lignes, 6 colonnes)
+2026-05-22 13:17:06,710 - INFO - Orbis brut : 53 lignes
+2026-05-22 13:17:06,711 - INFO - Année détectée depuis les données Orbis (format long) : 2026
+2026-05-22 13:17:06,711 - INFO - Année par défaut pour les semaines courtes : 2026
+2026-05-22 13:17:06,713 - INFO - Orbis après éclatement : 124 lignes (venues individuelles)
+2026-05-22 13:17:06,713 - INFO - --- Étape 2 : Chargement Hexagone SMR ---
+2026-05-22 13:17:06,725 - INFO - Validation OK pour 'Hexagone_SMR_Test.xlsx' (175 lignes, 13 colonnes)
+2026-05-22 13:17:06,725 - INFO - Hexagone brut : 175 lignes
+2026-05-22 13:17:06,726 - INFO - Lignes SD supprimées : 16. Hexagone après nettoyage : 159 lignes
+2026-05-22 13:17:06,757 - INFO - Hexagone dates parsées : 159/159
+2026-05-22 13:17:06,757 - INFO - --- Étape 3 : Tri NDA + Date ---
+2026-05-22 13:17:06,758 - INFO - Orbis pour le merge : 124 lignes (dédoublonnées)
+2026-05-22 13:17:06,759 - INFO - Hexagone pour le merge : 122 lignes (dédoublonnées)
+2026-05-22 13:17:06,763 - INFO - Résultat du tri — Correspondances : 87, Anomalies : 72
+2026-05-22 13:17:06,766 - INFO - --- Étape 4 : Export des résultats ---
+2026-05-22 13:17:06,803 - INFO - Fichier de tri exporté : Tri_SMR_Ecarts_20260522.xlsx (72 lignes)
+2026-05-22 13:17:06,814 - INFO - Fichier de synthèse exporté : Synthese_SMR_20260522.xlsx
+2026-05-22 13:17:06,814 - INFO - === CONTRÔLE SMR TERMINÉ ===

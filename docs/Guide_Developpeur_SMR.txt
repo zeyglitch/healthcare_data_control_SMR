@@ -1,0 +1,94 @@
+==============================================================
+Guide développeur — Contrôle d'exhaustivité SMR
+==============================================================
+
+Ce document explique comment modifier le code, tester vos
+changements et recréer l'exécutable distribuable.
+
+1) Aperçu rapide du projet
+- src/code/controle_smr.py  : logique métier (Pandas).
+- src/code/interface_smr.py : interface graphique (Tkinter).
+- requirements.txt          : dépendances Python.
+- fichiers_tests/           : jeux de données de test.
+
+--------------------------------------------------------------
+2) Architecture du code
+--------------------------------------------------------------
+Le code est séparé en 2 fichiers Python :
+
+a) controle_smr.py — Logique métier
+   - valider_colonnes()         : vérifie le format des fichiers
+   - detecter_annee()           : détecte l'année depuis les données
+                                  ou le nom du fichier
+   - parser_semaine_orbis()     : parse "202608" ou "8" en (année, semaine)
+   - eclater_semaine_en_dates() : transforme semaine+présence en dates
+                                  JJ/MM/AAAA individuelles
+   - formater_date_hexa()       : convertit "02/01/2026 09:12" en "02/01/2026"
+   - mettre_en_forme_excel()    : mise en forme des fichiers de sortie
+   - lancer_controle_smr()      : fonction principale, orchestre tout
+
+b) interface_smr.py — Interface graphique
+   - Classe AppControleSMR
+   - 2 champs de sélection de fichier (Orbis + Hexagone)
+   - 1 champ de dossier d'export
+   - Threading pour ne pas bloquer l'UI
+
+--------------------------------------------------------------
+3) Logique de transformation Semaine → Dates
+--------------------------------------------------------------
+C'est le cœur du programme. Voici comment ça fonctionne :
+
+1. On lit la colonne "N° Semaine" d'Orbis.
+2. Si le format est long (ex: "202603"), on extrait année=2026, semaine=3.
+   Si le format est court (ex: "3"), on utilise l'année détectée
+   depuis les autres lignes ou le nom du fichier.
+3. On lit la chaîne "Présence" (ex: "L.M.V..").
+   Chaque position correspond à un jour :
+     Position 0=Lundi, 1=Mardi, 2=Mercredi, 3=Jeudi,
+     4=Vendredi, 5=Samedi, 6=Dimanche.
+   Un point = absent, une lettre = présent.
+4. Pour chaque jour de présence, on calcule la date exacte
+   avec datetime.fromisocalendar(année, semaine, jour_iso).
+5. Résultat : 1 ligne Orbis → N lignes avec dates JJ/MM/AAAA.
+
+--------------------------------------------------------------
+4) Préparer l'environnement de développement
+--------------------------------------------------------------
+- Installez Python 3.9+ si nécessaire.
+- Ouvrez un terminal dans le dossier racine du projet.
+- Créez et activez un environnement virtuel :
+   PowerShell : python -m venv venv
+                venv\Scripts\Activate.ps1
+   CMD        : python -m venv venv
+                venv\Scripts\activate.bat
+- Installez les dépendances :
+   pip install -r requirements.txt
+
+--------------------------------------------------------------
+5) Tester localement
+--------------------------------------------------------------
+- Lancez l'interface : python src/code/interface_smr.py
+- Utilisez les fichiers de test dans fichiers_tests/ :
+   - Orbis_SMR_Test.xlsx
+   - Hexagone_SMR_Test.xlsx
+- Ou testez en ligne de commande (sans interface) :
+   python src/code/controle_smr.py
+     --orbis fichiers_tests/Orbis_SMR_Test.xlsx
+     --hexa fichiers_tests/Hexagone_SMR_Test.xlsx
+     --export data_test/export_test
+
+--------------------------------------------------------------
+6) Recréer le fichier .exe après modification
+--------------------------------------------------------------
+1. Assurez-vous que tout fonctionne en Python.
+2. Installez PyInstaller : pip install pyinstaller
+3. Depuis le dossier src/code/, lancez :
+   pyinstaller --noconsole --onefile --name "Controle_SMR_DIM" interface_smr.py
+4. Le nouveau .exe sera dans dist/Controle_SMR_DIM.exe.
+5. Copiez-le dans src/mode_logiciel/ pour distribution.
+
+Conseils :
+- Testez le .exe sur une machine propre pour détecter les
+  dépendances manquantes.
+- Les dossiers "build/" et le fichier ".spec" peuvent être
+  ignorés ou supprimés.

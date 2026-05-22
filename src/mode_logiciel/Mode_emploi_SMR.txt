@@ -1,0 +1,55 @@
+==============================================================
+Mode d'emploi — Contrôle d'exhaustivité SMR (DIM)
+==============================================================
+
+Cette application compare automatiquement les données de passages
+SMR (Soins Médicaux et de Réadaptation) entre Orbis et Hexagone.
+
+1) Avant de commencer
+- Préparez les 2 fichiers d'export nécessaires :
+   - 1 fichier Orbis SMR (contient les semaines et jours de présence)
+   - 1 fichier Hexagone SMR (contient les mouvements par séjour)
+- Les fichiers doivent être au format .xls ou .xlsx.
+
+2) Lancer l'application
+- Double-cliquez sur "Controle_SMR_DIM.exe" (fichier autonome), ou
+- En mode développement : "python interface_smr.py" depuis le dossier src/code/.
+
+3) Utilisation de l'interface
+- Cliquez sur "..." à côté de "Orbis SMR" et sélectionnez votre export Orbis.
+- Cliquez sur "..." à côté de "Hexagone SMR" et sélectionnez votre export Hexagone.
+- Choisissez le "Dossier export" pour les résultats (par défaut : data_test/export_test).
+- Cliquez sur "Lancer le traitement" et patientez.
+
+4) Ce que fait le programme
+- Il transforme les semaines Orbis (N° Semaine + Présence "L.M.V..")
+  en dates individuelles JJ/MM/AAAA.
+- Il supprime les lignes "SD" d'Hexagone (doublons de fin de séjour).
+- Il compare chaque venue par la clé NDA + Date entre les 2 fichiers.
+- Il identifie les écarts (présent dans un fichier mais pas l'autre).
+
+5) Résultats et interprétation
+Les fichiers générés se trouvent dans le dossier d'export choisi :
+
+- "Tri_SMR_Ecarts_[DATE].xlsx"
+   → Liste des anomalies (venues manquantes dans l'un ou l'autre système).
+   → Colonne "Origine de l'écart" : indique si l'enregistrement
+     manque dans Orbis ou dans Hexagone.
+
+- "Synthese_SMR_[DATE].xlsx"
+   → Récapitulatif chiffré du traitement :
+     nombre de lignes traitées, lignes SD supprimées,
+     correspondances trouvées, anomalies détectées.
+
+- "Logs_SMR_[DATE].txt"
+   → Journal technique détaillé du traitement.
+     Utile en cas de problème ou pour vérifier le déroulement.
+
+6) Conseils et dépannage
+- Fermez les fichiers Excel sources pendant l'exécution (sinon lecture bloquée).
+- Vérifiez que votre export Hexagone a bien les 2 lignes d'en-tête habituelles
+  ("Liste des mouvements par séjour" + ligne vide).
+- Le programme détecte automatiquement l'année à partir des numéros de semaine
+  au format long (ex: 202608). Si tous les numéros sont courts (ex: 8),
+  il utilisera l'année en cours.
+- En cas d'erreur, consultez le fichier Logs ou relancez avec la console ouverte.
