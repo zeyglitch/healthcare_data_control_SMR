@@ -72,8 +72,8 @@ def detecter_annee(serie_semaine, nom_fichier=""):
         # Format long : 6 chiffres (ex: '202608')
         if re.match(r'^\d{6}$', val_str):
             annee_candidate = int(val_str[:4])
-            # Filtre de vraisemblance (entre 2020 et 2099)
-            if 2020 <= annee_candidate <= 2099:
+            # Filtre de vraisemblance (entre 2000 et 2099)
+            if 2000 <= annee_candidate <= 2099:
                 annees_trouvees.add(annee_candidate)
 
     if len(annees_trouvees) == 1:
