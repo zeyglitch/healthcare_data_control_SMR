@@ -152,6 +152,9 @@ def eclater_semaine_en_dates(annee, num_semaine, presence_str):
     dates = []
     presence = str(presence_str).strip()
 
+    # Nettoyer les caractères non autorisés
+    presence = re.sub(r'[^LMMJVS\.]', '', presence)
+    
     # On s'assure que la chaîne fait bien 7 caractères
     if len(presence) != 7:
         logging.warning(f"Chaîne de présence invalide (longueur {len(presence)}) : '{presence}'")
@@ -163,7 +166,7 @@ def eclater_semaine_en_dates(annee, num_semaine, presence_str):
             jour_iso = idx + 1
             try:
                 date_obj = datetime.fromisocalendar(annee, num_semaine, jour_iso)
-                dates.append(date_obj.strftime('%d/%m/%Y'))
+                dates.append(date_obj)
             except ValueError as e:
                 logging.warning(f"Date invalide pour année={annee}, semaine={num_semaine}, jour={jour_iso}: {e}")
 

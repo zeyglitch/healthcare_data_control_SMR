@@ -58,10 +58,7 @@ def generate_data():
         has_date_error = random.random() < 0.1
 
         orbis_nda = nda
-        hex_nda = nda
-        if has_nda_error:
-            # Hexagone a une faute de frappe sur le NDA par rapport à Orbis
-            hex_nda = f"{int(nda) + 1}"
+        hex_nda = nda  # On force l'utilisation du même NDA pour les deux fichiers
 
         # --- Génération des lignes ORBIS ---
         for (y, w), dates_in_week in weeks_map.items():
