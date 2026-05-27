@@ -85,7 +85,7 @@ def generate_data():
                 
             orbis_data.append({
                 "N° Hospit": orbis_nda,
-                "N° Semaine": week_str,
+                "N° semaine": week_str,
                 "Présence": presence_str,
                 "Nom": last_name,
                 "Prénom": first_name,

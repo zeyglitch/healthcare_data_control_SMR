@@ -6,7 +6,7 @@ et Hexagone (une ligne par venue) pour identifier les écarts.
 
 Clé de tri : NDA + Date (JJ/MM/AAAA).
 La difficulté principale est de transformer les semaines Orbis
-(N° Semaine + chaîne de Présence) en dates individuelles.
+(N° semaine + chaîne de Présence) en dates individuelles.
 """
 
 import pandas as pd
@@ -333,16 +333,16 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     logging.info(f"Orbis brut : {nb_orbis_brut} lignes")
 
     # --- Détection intelligente de l'année ---
-    annee_defaut = detecter_annee(df_orbis_brut['N° Semaine'], chemin_orbis.name)
+    annee_defaut = detecter_annee(df_orbis_brut['N° semaine'], chemin_orbis.name)
     logging.info(f"Année par défaut pour les semaines courtes : {annee_defaut}")
 
     # --- Éclatement des semaines en dates individuelles ---
     # Chaque ligne Orbis (1 semaine, ex: 'L.M.V..') va produire N lignes (une par jour de présence)
     lignes_eclatees = []
     for _, row in df_orbis_brut.iterrows():
-        annee, num_sem = parser_semaine_orbis(row['N° Semaine'], annee_defaut)
+        annee, num_sem = parser_semaine_orbis(row['N° semaine'], annee_defaut)
         if annee is None or num_sem is None:
-            logging.warning(f"Ligne Orbis ignorée (semaine invalide) : NDA={row['N° Hospit']}, Semaine={row['N° Semaine']}")
+            logging.warning(f"Ligne Orbis ignorée (semaine invalide) : NDA={row['N° Hospit']}, Semaine={row['N° semaine']}")
             continue
 
         dates = eclater_semaine_en_dates(annee, num_sem, row['Présence'])
@@ -353,7 +353,7 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
                 'Nom': row['Nom'],
                 'Prénom': row['Prénom'],
                 'Né(e) le': row['Né(e) le'],
-                'N° Semaine (source)': row['N° Semaine'],
+                'N° semaine (source)': row['N° semaine'],
                 'Présence (source)': row['Présence'],
             })
 

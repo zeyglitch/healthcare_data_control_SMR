@@ -22,7 +22,7 @@ SMR (Soins Médicaux et de Réadaptation) entre Orbis et Hexagone.
 - Cliquez sur "Lancer le traitement" et patientez.
 
 4) Ce que fait le programme
-- Il transforme les semaines Orbis (N° Semaine + Présence "L.M.V..")
+- Il transforme les semaines Orbis (N° semaine + Présence "L.M.V..")
   en dates individuelles JJ/MM/AAAA.
 - Il supprime les lignes "SD" d'Hexagone (doublons de fin de séjour).
 - Il compare chaque venue par la clé NDA + Date entre les 2 fichiers.

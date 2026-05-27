@@ -38,7 +38,7 @@ b) interface_smr.py — Interface graphique
 --------------------------------------------------------------
 C'est le cœur du programme. Voici comment ça fonctionne :
 
-1. On lit la colonne "N° Semaine" d'Orbis.
+1. On lit la colonne "N° semaine" d'Orbis.
 2. Si le format est long (ex: "202603"), on extrait année=2026, semaine=3.
    Si le format est court (ex: "3"), on utilise l'année détectée
    depuis les autres lignes ou le nom du fichier.
