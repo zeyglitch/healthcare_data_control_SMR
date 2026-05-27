@@ -27,7 +27,7 @@ from openpyxl.utils import get_column_letter
 DOSSIER_EXPORT_DEFAUT = Path('./data_test/export_test')
 
 # Colonnes attendues dans chaque fichier source
-COLONNES_ORBIS_SMR = ['N° Hospit', 'N° Semaine', 'Présence', 'Nom', 'Prénom', 'Né(e) le']
+COLONNES_ORBIS_SMR = ['N° Hospit', 'N° semaine', 'Présence', 'Nom', 'Prénom', 'Né(e) le']
 COLONNES_HEXA_SMR = ['Nom/Prénom', 'Nom de Naissance', 'Date de naissance', 'N° Dossier', 'Date', 'Type']
 
 
