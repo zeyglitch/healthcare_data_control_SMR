@@ -69,6 +69,9 @@ def detecter_annee(serie_semaine, nom_fichier=""):
     annees_trouvees = set()
     for val in serie_semaine.dropna().unique():
         val_str = str(val).strip()
+        # Supprime le '.0' résiduel de la lecture Excel (ex: '202603.0' → '202603')
+        if val_str.endswith('.0'):
+            val_str = val_str[:-2]
         # Format long : 6 chiffres (ex: '202608')
         if re.match(r'^\d{6}$', val_str):
             annee_candidate = int(val_str[:4])
@@ -110,6 +113,9 @@ def parser_semaine_orbis(valeur_semaine, annee_defaut):
     - '02'     → (annee_defaut, 2)
     """
     val = str(valeur_semaine).strip()
+    # Supprime le '.0' résiduel de la lecture Excel (ex: '202603.0' → '202603')
+    if val.endswith('.0'):
+        val = val[:-2]
 
     # Format long : 6 chiffres (AAAASS)
     if re.match(r'^\d{6}$', val):
@@ -218,6 +224,14 @@ def mettre_en_forme_excel(chemin_fichier):
 
         # Activation des filtres automatiques
         ws.auto_filter.ref = ws.dimensions
+
+        # Formatage explicite des cellules datetime au format JJ/MM/AAAA
+        # (évite qu'Excel reformate les dates selon la locale du poste)
+        for col_idx in range(1, ws.max_column + 1):
+            for row_idx in range(2, ws.max_row + 1):
+                cell = ws.cell(row=row_idx, column=col_idx)
+                if isinstance(cell.value, datetime):
+                    cell.number_format = 'DD/MM/YYYY'
 
     wb.save(chemin_fichier)
 
@@ -328,6 +342,11 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     # Lecture en texte brut pour éviter l'auto-détection foireuse de Pandas
     df_orbis_brut = pd.read_excel(chemin_orbis, dtype=str)
     valider_colonnes(df_orbis_brut, COLONNES_ORBIS_SMR, chemin_orbis.name)
+
+    # Nettoyage du suffixe '.0' ajouté par pandas pour les cellules numériques Excel
+    # (ex: Excel stocke 202603 en float → pandas lit "202603.0" avec dtype=str)
+    for col in ['N° Hospit', 'N° semaine']:
+        df_orbis_brut[col] = df_orbis_brut[col].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
     
     nb_orbis_brut = len(df_orbis_brut)
     logging.info(f"Orbis brut : {nb_orbis_brut} lignes")
@@ -383,7 +402,7 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     logging.info(f"Lignes SD supprimées : {nb_sd}. Hexagone après nettoyage : {nb_hexa_apres_sd} lignes")
 
     # --- Nettoyage des colonnes ---
-    df_hexa['NDA'] = df_hexa['N° Dossier'].astype(str).str.strip()
+    df_hexa['NDA'] = df_hexa['N° Dossier'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
     df_hexa['Date'] = df_hexa['Date'].apply(formater_date_hexa)
 
     # Extraction du Nom et du Prénom depuis 'Nom/Prénom'
@@ -454,9 +473,13 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
             'Date Naissance Final': 'Date Naissance',
         })
 
+        # Conversion des dates en objets datetime pour un formatage Excel correct (JJ/MM/AAAA)
+        # Sans cela, Excel auto-interprète les chaînes "06/01/2026" et peut inverser jour/mois
+        export_tri['Date'] = pd.to_datetime(export_tri['Date'], format='%d/%m/%Y', errors='coerce')
+        if 'Date Naissance' in export_tri.columns:
+            export_tri['Date Naissance'] = pd.to_datetime(export_tri['Date Naissance'], dayfirst=True, errors='coerce')
         # Tri par date décroissante pour faciliter la lecture
-        export_tri['_tri_date'] = pd.to_datetime(export_tri['Date'], dayfirst=True, errors='coerce')
-        export_tri = export_tri.sort_values('_tri_date', ascending=False).drop(columns=['_tri_date'])
+        export_tri = export_tri.sort_values('Date', ascending=False)
     else:
         export_tri = pd.DataFrame(columns=[
             'NDA', 'Nom', 'Prénom', 'Date Naissance', 'Date', "Origine de l'écart", "Origine de l'erreur"
