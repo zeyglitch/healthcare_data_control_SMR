@@ -1,0 +1,39 @@
+2026-05-28 08:56:56,048 - INFO - === DÉMARRAGE DU CONTRÔLE SMR ===
+2026-05-28 08:56:56,048 - INFO - --- Étape 1 : Chargement Orbis SMR ---
+2026-05-28 08:56:56,087 - INFO - Validation OK pour 'Orbis_SMR_Test.xlsx' (53 lignes, 6 colonnes)
+2026-05-28 08:56:56,087 - INFO - Orbis brut : 53 lignes
+2026-05-28 08:56:56,087 - INFO - Année détectée depuis les données Orbis (format long) : 2026
+2026-05-28 08:56:56,087 - INFO - Année par défaut pour les semaines courtes : 2026
+2026-05-28 08:56:56,087 - WARNING - Chaîne de présence de longueur 6 : 'L..J..D' -> 'L..J..'
+2026-05-28 08:56:56,087 - WARNING - Chaîne de présence de longueur 6 : '...J..D' -> '...J..'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : '....VSD' -> '....VS'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : '..MJV.D' -> '..MJV.'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : '.....SD' -> '.....S'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : 'L..JV.D' -> 'L..JV.'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : 'L..J..D' -> 'L..J..'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : '....V.D' -> '....V.'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : '..M.V.D' -> '..M.V.'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : '......D' -> '......'
+2026-05-28 08:56:56,088 - WARNING - Aucune date générée pour NDA 463635231, semaine 33, présence '......D'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : '......D' -> '......'
+2026-05-28 08:56:56,088 - WARNING - Aucune date générée pour NDA 465704235, semaine 202627, présence '......D'
+2026-05-28 08:56:56,088 - WARNING - Chaîne de présence de longueur 6 : '...J..D' -> '...J..'
+2026-05-28 08:56:56,090 - WARNING - Chaîne de présence de longueur 6 : '...J..D' -> '...J..'
+2026-05-28 08:56:56,090 - WARNING - Chaîne de présence de longueur 6 : '.M.J..D' -> '.M.J..'
+2026-05-28 08:56:56,090 - WARNING - Chaîne de présence de longueur 6 : 'L..J..D' -> 'L..J..'
+2026-05-28 08:56:56,090 - WARNING - Chaîne de présence de longueur 6 : '..M.V.D' -> '..M.V.'
+2026-05-28 08:56:56,091 - INFO - Orbis après éclatement : 108 lignes (venues individuelles)
+2026-05-28 08:56:56,092 - INFO - Lignes Orbis ignorées : 0 (semaine invalide), 2 (présence sans date)
+2026-05-28 08:56:56,092 - INFO - --- Étape 2 : Chargement Hexagone SMR ---
+2026-05-28 08:56:56,120 - INFO - Validation OK pour 'Hexagone_SMR_Test.xlsx' (175 lignes, 13 colonnes)
+2026-05-28 08:56:56,120 - INFO - Hexagone brut : 175 lignes
+2026-05-28 08:56:56,121 - INFO - Lignes SD supprimées : 16. Hexagone après nettoyage : 159 lignes
+2026-05-28 08:56:56,122 - INFO - Hexagone dates parsées : 0/159
+2026-05-28 08:56:56,122 - INFO - --- Étape 3 : Tri NDA + Date ---
+2026-05-28 08:56:56,125 - INFO - Orbis pour le merge : 108 lignes
+2026-05-28 08:56:56,125 - INFO - Hexagone pour le merge : 29 lignes
+2026-05-28 08:56:56,129 - INFO - Résultat du tri — Correspondances : 0, Anomalies : 137
+2026-05-28 08:56:56,131 - INFO - --- Étape 4 : Export des résultats ---
+2026-05-28 08:56:56,193 - INFO - Fichier de tri exporté : Tri_SMR_Ecarts_20260528.xlsx (137 lignes)
+2026-05-28 08:56:56,223 - INFO - Fichier de synthèse exporté : Synthese_SMR_20260528.xlsx
+2026-05-28 08:56:56,223 - INFO - === CONTRÔLE SMR TERMINÉ ===

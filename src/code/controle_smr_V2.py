@@ -360,14 +360,17 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     logging.info("--- Étape 1 : Chargement Orbis SMR ---")
     chemin_orbis = Path(orbis_path)
     
-    # Lecture en texte brut pour éviter l'auto-détection foireuse de Pandas
-    df_orbis_brut = pd.read_excel(chemin_orbis, dtype=str)
+    # Lecture native (sans dtype=str) pour préserver les types Excel (dates en datetime)
+    df_orbis_brut = pd.read_excel(chemin_orbis)
     valider_colonnes(df_orbis_brut, COLONNES_ORBIS_SMR, chemin_orbis.name)
 
-    # Nettoyage du suffixe '.0' ajouté par pandas pour les cellules numériques Excel
-    # (ex: Excel stocke 202603 en float → pandas lit "202603.0" avec dtype=str)
+    # Forcer les colonnes textuelles en string après lecture native
+    # On laisse 'Né(e) le' en type natif (datetime) pour conserver les dates de naissance
+    for col in ['N° Hospit', 'N° semaine', 'Présence', 'Nom', 'Prénom']:
+        df_orbis_brut[col] = df_orbis_brut[col].astype(str).str.strip()
+    # Supprime le '.0' résiduel des colonnes numériques lues en float par Excel
     for col in ['N° Hospit', 'N° semaine']:
-        df_orbis_brut[col] = df_orbis_brut[col].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+        df_orbis_brut[col] = df_orbis_brut[col].str.replace(r'\.0$', '', regex=True)
     
     nb_orbis_brut = len(df_orbis_brut)
     logging.info(f"Orbis brut : {nb_orbis_brut} lignes")
@@ -399,9 +402,9 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
 
     df_orbis = pd.DataFrame(lignes_eclatees)
     nb_orbis_eclate = len(df_orbis)
-    # Normalisation explicite en datetime64 pandas pour le merge
+    # Normalisation en datetime64 pandas à minuit pour le merge
     if not df_orbis.empty:
-        df_orbis['Date'] = pd.to_datetime(df_orbis['Date'], errors='coerce')
+        df_orbis['Date'] = pd.to_datetime(df_orbis['Date'], errors='coerce').dt.normalize()
     logging.info(f"Orbis après éclatement : {nb_orbis_eclate} lignes (venues individuelles)")
 
     # =========================================================
@@ -411,7 +414,8 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     chemin_hexa = Path(hexa_path)
 
     # Les fichiers Hexagone ont 2 lignes d'en-tête (titre + ligne vide) avant les colonnes
-    df_hexa_brut = pd.read_excel(chemin_hexa, dtype=str, header=2)
+    # Lecture native (sans dtype=str) pour préserver les dates Excel en datetime
+    df_hexa_brut = pd.read_excel(chemin_hexa, header=2)
     valider_colonnes(df_hexa_brut, COLONNES_HEXA_SMR, chemin_hexa.name)
 
     nb_hexa_brut = len(df_hexa_brut)
@@ -420,16 +424,17 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     # --- Suppression des lignes SD ---
     # Les lignes de type 'SD' (Sortie de Domicile) font doublon avec la venue précédente 
     # (même jour, juste décalée de quelques heures). On les supprime avant le tri.
-    nb_sd = (df_hexa_brut['Type'].str.strip() == 'SD').sum()
-    df_hexa = df_hexa_brut[df_hexa_brut['Type'].str.strip() != 'SD'].copy()
+    df_hexa_brut['Type'] = df_hexa_brut['Type'].astype(str).str.strip()
+    nb_sd = (df_hexa_brut['Type'] == 'SD').sum()
+    df_hexa = df_hexa_brut[df_hexa_brut['Type'] != 'SD'].copy()
     nb_hexa_apres_sd = len(df_hexa)
     logging.info(f"Lignes SD supprimées : {nb_sd}. Hexagone après nettoyage : {nb_hexa_apres_sd} lignes")
 
     # --- Nettoyage des colonnes ---
     df_hexa['NDA'] = df_hexa['N° Dossier'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
-    df_hexa['Date'] = df_hexa['Date'].apply(formater_date_hexa)
-    # Normalisation en datetime64 pandas pour garantir la compatibilité avec le merge Orbis
-    df_hexa['Date'] = pd.to_datetime(df_hexa['Date'], errors='coerce')
+    # Normalisation des dates : conversion en datetime64 à minuit (suppression de l'heure)
+    # Les dates Excel natives sont des datetime, certaines cellules texte sont parsées avec dayfirst=True
+    df_hexa['Date'] = pd.to_datetime(df_hexa['Date'], dayfirst=True, errors='coerce').dt.normalize()
 
     # Extraction du Nom et du Prénom depuis 'Nom/Prénom'
     split_noms = df_hexa['Nom/Prénom'].str.split('/', n=1, expand=True)

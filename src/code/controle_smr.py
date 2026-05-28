@@ -271,17 +271,21 @@ def diagnostiquer_erreur(row, df_orbis, df_hexa):
     nda_dans_orbis = nda in df_orbis['NDA'].values
     nda_dans_hexa = nda in df_hexa['NDA'].values
 
-    try:
-        dt_venue = datetime.strptime(date_val, '%d/%m/%Y')
-    except Exception:
-        dt_venue = None
+    # Conversion de la date de la venue (datetime/Timestamp depuis le merge)
+    if isinstance(date_val, datetime):
+        dt_venue = date_val
+    else:
+        try:
+            dt_venue = pd.to_datetime(date_val, dayfirst=True).to_pydatetime()
+        except Exception:
+            dt_venue = None
 
     if nda_dans_orbis and nda_dans_hexa and dt_venue:
         if origine == 'Manquant dans Hexagone':
             dates_hexa = df_hexa[df_hexa['NDA'] == nda]['Date'].dropna().unique()
-            for d_str in dates_hexa:
+            for d in dates_hexa:
                 try:
-                    dt_h = datetime.strptime(d_str, '%d/%m/%Y')
+                    dt_h = pd.Timestamp(d).to_pydatetime()
                     diff_days = abs((dt_h - dt_venue).days)
                     if diff_days > 0 and diff_days % 7 == 0:
                         return "Semaine"
@@ -291,9 +295,9 @@ def diagnostiquer_erreur(row, df_orbis, df_hexa):
                     continue
         elif origine == 'Manquant dans Orbis':
             dates_orbis = df_orbis[df_orbis['NDA'] == nda]['Date'].dropna().unique()
-            for d_str in dates_orbis:
+            for d in dates_orbis:
                 try:
-                    dt_o = datetime.strptime(d_str, '%d/%m/%Y')
+                    dt_o = pd.Timestamp(d).to_pydatetime()
                     diff_days = abs((dt_venue - dt_o).days)
                     if diff_days > 0 and diff_days % 7 == 0:
                         return "Semaine"
@@ -342,14 +346,17 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     logging.info("--- Étape 1 : Chargement Orbis SMR ---")
     chemin_orbis = Path(orbis_path)
     
-    # Lecture en texte brut pour éviter l'auto-détection foireuse de Pandas
-    df_orbis_brut = pd.read_excel(chemin_orbis, dtype=str)
+    # Lecture native (sans dtype=str) pour préserver les types Excel (dates en datetime)
+    df_orbis_brut = pd.read_excel(chemin_orbis)
     valider_colonnes(df_orbis_brut, COLONNES_ORBIS_SMR, chemin_orbis.name)
 
-    # Nettoyage du suffixe '.0' ajouté par pandas pour les cellules numériques Excel
-    # (ex: Excel stocke 202603 en float → pandas lit "202603.0" avec dtype=str)
+    # Forcer les colonnes textuelles en string après lecture native
+    # On laisse 'Né(e) le' en type natif (datetime) pour conserver les dates de naissance
+    for col in ['N° Hospit', 'N° semaine', 'Présence', 'Nom', 'Prénom']:
+        df_orbis_brut[col] = df_orbis_brut[col].astype(str).str.strip()
+    # Supprime le '.0' résiduel des colonnes numériques lues en float par Excel
     for col in ['N° Hospit', 'N° semaine']:
-        df_orbis_brut[col] = df_orbis_brut[col].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+        df_orbis_brut[col] = df_orbis_brut[col].str.replace(r'\.0$', '', regex=True)
     
     nb_orbis_brut = len(df_orbis_brut)
     logging.info(f"Orbis brut : {nb_orbis_brut} lignes")
@@ -381,6 +388,9 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
 
     df_orbis = pd.DataFrame(lignes_eclatees)
     nb_orbis_eclate = len(df_orbis)
+    # Normalisation en datetime64 pandas à minuit pour le merge
+    if not df_orbis.empty:
+        df_orbis['Date'] = pd.to_datetime(df_orbis['Date'], errors='coerce').dt.normalize()
     logging.info(f"Orbis après éclatement : {nb_orbis_eclate} lignes (venues individuelles)")
 
     # =========================================================
@@ -390,7 +400,8 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     chemin_hexa = Path(hexa_path)
 
     # Les fichiers Hexagone ont 2 lignes d'en-tête (titre + ligne vide) avant les colonnes
-    df_hexa_brut = pd.read_excel(chemin_hexa, dtype=str, header=2)
+    # Lecture native (sans dtype=str) pour préserver les dates Excel en datetime
+    df_hexa_brut = pd.read_excel(chemin_hexa, header=2)
     valider_colonnes(df_hexa_brut, COLONNES_HEXA_SMR, chemin_hexa.name)
 
     nb_hexa_brut = len(df_hexa_brut)
@@ -399,14 +410,16 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     # --- Suppression des lignes SD ---
     # Les lignes de type 'SD' (Sortie de Domicile) font doublon avec la venue précédente 
     # (même jour, juste décalée de quelques heures). On les supprime avant le tri.
-    nb_sd = (df_hexa_brut['Type'].str.strip() == 'SD').sum()
-    df_hexa = df_hexa_brut[df_hexa_brut['Type'].str.strip() != 'SD'].copy()
+    df_hexa_brut['Type'] = df_hexa_brut['Type'].astype(str).str.strip()
+    nb_sd = (df_hexa_brut['Type'] == 'SD').sum()
+    df_hexa = df_hexa_brut[df_hexa_brut['Type'] != 'SD'].copy()
     nb_hexa_apres_sd = len(df_hexa)
     logging.info(f"Lignes SD supprimées : {nb_sd}. Hexagone après nettoyage : {nb_hexa_apres_sd} lignes")
 
     # --- Nettoyage des colonnes ---
     df_hexa['NDA'] = df_hexa['N° Dossier'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
-    df_hexa['Date'] = df_hexa['Date'].apply(formater_date_hexa)
+    # Normalisation des dates : conversion en datetime64 à minuit (suppression de l'heure)
+    df_hexa['Date'] = pd.to_datetime(df_hexa['Date'], dayfirst=True, errors='coerce').dt.normalize()
 
     # Extraction du Nom et du Prénom depuis 'Nom/Prénom'
     split_noms = df_hexa['Nom/Prénom'].str.split('/', n=1, expand=True)
@@ -476,9 +489,9 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
             'Date Naissance Final': 'Date Naissance',
         })
 
-        # Conversion des dates en objets datetime pour un formatage Excel correct (JJ/MM/AAAA)
-        # Sans cela, Excel auto-interprète les chaînes "06/01/2026" et peut inverser jour/mois
-        export_tri['Date'] = pd.to_datetime(export_tri['Date'], format='%d/%m/%Y', errors='coerce')
+        # Les dates sont déjà des datetime depuis les 2 sources (Orbis et Hexagone)
+        # On normalise en datetime64 pandas pour un export Excel propre en JJ/MM/AAAA
+        export_tri['Date'] = pd.to_datetime(export_tri['Date'], errors='coerce')
         if 'Date Naissance' in export_tri.columns:
             export_tri['Date Naissance'] = pd.to_datetime(export_tri['Date Naissance'], dayfirst=True, errors='coerce')
         # Tri par date décroissante pour faciliter la lecture
