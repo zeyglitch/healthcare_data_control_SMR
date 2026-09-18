@@ -47,7 +47,6 @@ L'activité SMR pose une difficulté spécifique : Orbis exprime les venues sous
 │   ├── code/                # controle_smr.py, interface_smr.py
 │   └── mode_logiciel/       # Mode d'emploi utilisateur
 ├── fichiers_tests/          # Jeux de données synthétiques
-├── data_test/               # Dossier de destination des rapports générés
 ├── docs/                    # Guide développeur
 ├── requirements.txt
 └── .gitignore
