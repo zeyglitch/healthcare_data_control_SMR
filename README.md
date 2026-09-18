@@ -1,49 +1,87 @@
-# 🩺 Conciliation DIM - Contrôle d'exhaustivité SMR
+# Contrôle d'exhaustivité PMSI — SMR (Orbis SMR ↔ Hexagone SMR)
 
-Bienvenue dans l'outil de conciliation dédié aux Soins Médicaux et de Réadaptation (SMR) pour le département d'Information Médicale (DIM). Dans la lignée des autres outils, ce petit logiciel a été conçu pour simplifier la vie des codeurs en automatisant la comparaison entre les exports **Orbis SMR** et **Hexagone SMR**.
+Outil Python de rapprochement automatique des venues entre les exports Orbis SMR et Hexagone SMR, pour un Département d'Information Médicale (DIM) hospitalier — activité de Soins Médicaux et de Réadaptation (SMR).
 
-L'objectif ? Repérer en un clin d'œil les venues manquantes dans l'un ou l'autre système en convertissant intelligemment les numéros de semaines et les grilles de présence en dates exactes !
+Version SMR complémentaire du dépôt [healthcare-data-reconciliation](https://github.com/zeyglitch/healthcare-data-reconciliation) (MCO).
 
-## 🌟 Ce que fait l'outil pour vous
+## Contexte
 
-- **Transformation magique** : Convertit les présences sous forme de grille hebdomadaire (ex: "L.M.V..") en dates de venues individuelles exactes.
-- **Nettoyage automatique** : Filtre les lignes inutiles (comme les doublons de fin de séjour "SD" dans l'export Hexagone).
-- **Analyse croisée pointue** : Compare automatiquement chaque venue via la clé "NDA + Date" entre vos deux fichiers.
-- **Rapports clairs** : Génère des fichiers Excel colorés identifiant clairement l'origine de l'anomalie (manquant dans Orbis ou dans Hexagone), ainsi qu'une synthèse chiffrée.
+Développé pendant un stage de 3ème année d'école d'ingénieur (ISIS Castres, partenaire INSA) au Département d'Information Médicale d'un Centre Hospitalier public, entre avril et juin 2026.
 
-## 📁 Comment est organisé le projet ?
+L'activité SMR pose une difficulté spécifique : Orbis exprime les venues sous forme de **grilles hebdomadaires de présence** (par exemple `L.M.V..` pour lundi/mardi/vendredi), tandis qu'Hexagone les stocke à la venue individuelle. Le rapprochement manuel imposait de reconstruire mentalement les dates pour chaque semaine, chaque patient — travail long et à haut risque d'erreur.
 
-Pour que tout soit bien rangé, voici la structure de travail :
-- `src/` : Contient la "mécanique" (les scripts Python `controle_smr.py` et `interface_smr.py` dans le dossier `code/`). Vous y trouverez aussi le mode d'emploi utilisateur dans `mode_logiciel/`.
-- `fichiers_tests/` : Les jeux de données d'exemple pour tester l'outil sereinement (`Orbis_SMR_Test.xlsx` et `Hexagone_SMR_Test.xlsx`).
-- `data_test/` : C'est le dossier de destination par défaut pour la sortie de vos analyses (les synthèses et rapports d'écarts).
-- `docs/` : Vous y trouverez le **Guide Développeur** si vous souhaitez plonger sous le capot et modifier le comportement (notamment la logique métier sur les dates).
+## Résultats
 
-## 🛠️ Installation (pour la première fois)
+- Traitement de **2 fichiers d'export SMR** (Orbis SMR, Hexagone SMR).
+- **Conversion automatique** des grilles hebdomadaires en dates exactes de venues.
+- Rapprochement par clé composite **NDA + Date**.
+- Rapports Excel identifiant clairement l'origine de chaque anomalie (manquant dans Orbis, dans Hexagone, ou incohérence).
+- **Validé et déployé en production**.
 
-1. Assurez-vous d'avoir **Python (3.9 ou plus)** installé sur votre ordinateur.
-2. Dans votre terminal, à la racine du projet, installez les outils nécessaires (de préférence dans un environnement virtuel) :
-   ```bash
-   python -m venv venv
-   # Sur Windows (PowerShell) :
-   venv\Scripts\Activate.ps1 
-   pip install -r requirements.txt
-   ```
+## Fonctionnalités
 
-## 🚀 Comment l'utiliser ?
+- **Conversion grille → dates** : à partir du numéro de semaine et de la grille de présence, génère la liste exacte des dates de venue.
+- **Nettoyage automatique** : filtrage des lignes de type "SD" (fin de séjour) dans Hexagone qui polluent la comparaison brute.
+- **Rapprochement pointu** : compare chaque venue individuelle via la clé composite NDA + date.
+- **Rapports Excel formatés** avec synthèse chiffrée (nombre de venues manquantes par système, pourcentages).
+- **Interface graphique** pour sélection des fichiers et paramètres.
 
-### Mode Classique (Interface Graphique)
-C'est la méthode la plus simple pour l'utiliser au quotidien. Lancez cette commande depuis le dossier principal :
+## Stack technique
+
+- Python 3.9+
+- Pandas
+- openpyxl (rapports Excel formatés)
+- Tkinter (interface graphique)
+- PyInstaller (distribution `.exe`)
+
+## Confidentialité et publication
+
+- **Publication autorisée** par le maître de stage.
+- Code **entièrement générique**, sans référence à un établissement.
+- Les fichiers de test inclus (`Orbis_SMR_Test.xlsx`, `Hexagone_SMR_Test.xlsx`) sont **entièrement synthétiques**.
+
+## Structure
+
+```
+├── src/
+│   ├── code/                # controle_smr.py, interface_smr.py
+│   └── mode_logiciel/       # Mode d'emploi utilisateur
+├── fichiers_tests/          # Jeux de données synthétiques
+├── data_test/               # Dossier de destination des rapports générés
+├── docs/                    # Guide développeur
+├── requirements.txt
+└── .gitignore
+```
+
+## Installation
+
+```bash
+python -m venv venv
+venv\Scripts\Activate.ps1     # Windows
+# ou : source venv/bin/activate  # macOS/Linux
+pip install -r requirements.txt
+```
+
+## Utilisation
+
+### Interface graphique
+
 ```bash
 python src/code/interface_smr.py
 ```
-Une fenêtre s'ouvrira : choisissez vos fichiers d'entrée Orbis et Hexagone, indiquez un dossier d'export et cliquez sur "Lancer le traitement". Et voilà !
 
-### Créer un fichier .exe (Application autonome)
-Si vous voulez partager l'outil à un collègue qui n'a pas Python d'installé, vous pouvez transformer le script en une vraie application Windows :
+Choisir les exports Orbis et Hexagone, indiquer le dossier d'export, cliquer sur **Lancer le traitement**.
+
+### Génération d'un exécutable autonome
+
 ```bash
 pip install pyinstaller
 cd src/code
 pyinstaller --noconsole --onefile --name "Controle_SMR_DIM" interface_smr.py
 ```
-Le résultat (`Controle_SMR_DIM.exe`) sera généré dans le dossier `dist/`. Vous pouvez le récupérer et le distribuer sans soucis !
+
+Le `.exe` est dans `dist/`.
+
+## Licence
+
+MIT — voir [LICENSE](LICENSE).
