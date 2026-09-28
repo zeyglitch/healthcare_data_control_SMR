@@ -39,6 +39,7 @@ L'activité SMR pose une difficulté spécifique : Orbis exprime les venues sous
 - **Publication autorisée** par le maître de stage.
 - Code **entièrement générique**, sans référence à un établissement.
 - Les fichiers de test inclus (`Orbis_SMR_Test.xlsx`, `Hexagone_SMR_Test.xlsx`) sont **entièrement synthétiques**.
+- Publication réalisée avec l'accord du Centre Hospitalier de Cahors.
 
 ## Structure
 
