@@ -6,7 +6,7 @@ Version SMR complémentaire du dépôt [healthcare-data-reconciliation](https://
 
 ## Contexte
 
-Développé pendant un stage de 3ème année d'école d'ingénieur (ISIS Castres, partenaire INSA) au Département d'Information Médicale d'un Centre Hospitalier public, entre avril et juin 2026.
+Développé pendant un stage de 3ème année d'école d'ingénieur (ISIS Castres, partenaire INSA) au Département d'Information Médicale du Centre Hospitalier de Cahors, entre avril et juin 2026. Le concept général de l'applicatif a été défini par le DIM du Centre Hospitalier de Cahors ; le code présenté ici en est la réalisation technique, publiée avec leur accord.
 
 L'activité SMR pose une difficulté spécifique : Orbis exprime les venues sous forme de **grilles hebdomadaires de présence** (par exemple `L.M.V..` pour lundi/mardi/vendredi), tandis qu'Hexagone les stocke à la venue individuelle. Le rapprochement manuel imposait de reconstruire mentalement les dates pour chaque semaine, chaque patient — travail long et à haut risque d'erreur.
 
