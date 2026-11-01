@@ -173,22 +173,36 @@ def eclater_semaine_en_dates(annee, num_semaine, presence_str):
     return dates
 
 
-def formater_date_hexa(date_str):
+def formater_date_hexa(date_val):
     """
-    Convertit une date Hexagone ('02/01/2026 09:12') en format JJ/MM/AAAA uniquement.
-    On ignore l'heure car on n'en a pas besoin pour le tri.
+    Convertit une date Hexagone en objet datetime (sans heure).
+    
+    Gère 3 cas selon comment Excel/Pandas a lu la cellule :
+    1. datetime natif (format Personnalisé Excel → openpyxl retourne un datetime)
+    2. Chaîne "06/01/2026 09:12:00" (si cellule en format Texte dans Excel)
+    3. Chaîne ISO "2026-01-06 09:12:00" (si dtype=str a converti un datetime natif)
+    
+    Retourne un objet datetime (à minuit) ou pd.NaT si invalide.
     """
-    if pd.isna(date_str):
-        return np.nan
-    s = str(date_str).strip()
+    if pd.isna(date_val):
+        return pd.NaT
+    
+    # Cas 1 : Déjà un datetime Python (natif Excel lu par openpyxl)
+    if isinstance(date_val, datetime):
+        return datetime(date_val.year, date_val.month, date_val.day)
+    
+    s = str(date_val).strip()
     if s in ('', 'nan', 'NaN', 'NaT', 'None'):
-        return np.nan
+        return pd.NaT
 
     try:
+        # dayfirst=True force l'interprétation JJ/MM/AAAA
+        # (fonctionne aussi sur le format ISO qui est non ambigu)
         dt_val = pd.to_datetime(s, dayfirst=True)
-        return dt_val.strftime('%d/%m/%Y')
+        return datetime(dt_val.year, dt_val.month, dt_val.day)
     except Exception:
-        return np.nan
+        logging.warning(f"Date Hexagone non parsable : '{date_val}'")
+        return pd.NaT
 
 
 def mettre_en_forme_excel(chemin_fichier):
@@ -419,6 +433,7 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
     # --- Nettoyage des colonnes ---
     df_hexa['NDA'] = df_hexa['N° Dossier'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
     # Normalisation des dates : conversion en datetime64 à minuit (suppression de l'heure)
+    # Les dates Excel natives sont des datetime, certaines cellules texte sont parsées avec dayfirst=True
     df_hexa['Date'] = pd.to_datetime(df_hexa['Date'], dayfirst=True, errors='coerce').dt.normalize()
 
     # Extraction du Nom et du Prénom depuis 'Nom/Prénom'
@@ -489,7 +504,7 @@ def lancer_controle_smr(orbis_path, hexa_path, export_dir=None):
             'Date Naissance Final': 'Date Naissance',
         })
 
-        # Les dates sont déjà des datetime depuis les 2 sources (Orbis et Hexagone)
+        # Les dates sont déjà des objets datetime depuis les 2 sources (Orbis et Hexagone)
         # On normalise en datetime64 pandas pour un export Excel propre en JJ/MM/AAAA
         export_tri['Date'] = pd.to_datetime(export_tri['Date'], errors='coerce')
         if 'Date Naissance' in export_tri.columns:
